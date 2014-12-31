@@ -4,20 +4,28 @@ using Facebook.MiniJSON;
 
 public class MainMenu : MonoBehaviour {
 
+	GameObject cam;
+	GameObject highScoresMenu;
+	GameObject titleMenu;
+
 	void Awake() {
 		// Initialize FB SDK              
 		enabled = false;                  
 		FB.Init(SetInit, OnHideUnity);  
 	}
 
-	void OnGUI() {
-//		if (!FB.IsLoggedIn)                                                                                              
-//		{                                                                                                                
-//			if (GUI.Button(LoginButtonRect, "", MenuSkin.GetStyle("button_login")))                                      
-//			{                                                                                                            
-//				FB.Login("email,publish_actions", LoginCallback);                                                        
-//			}                                                                                                            
-//		}    
+	void Start() {
+		cam = GameObject.FindWithTag("MainCamera");
+		highScoresMenu = GameObject.Find ("HighScores");
+		titleMenu = GameObject.Find ("MainMenu");
+	}
+
+	public void NavigateToTitleMenu() {
+		cam.transform.LookAt(titleMenu.transform);
+	}
+
+	public void NavigateToHighScores() {
+		cam.transform.LookAt(highScoresMenu.transform);
 	}
 
 	public void PlayOnClick() {
@@ -34,7 +42,12 @@ public class MainMenu : MonoBehaviour {
 			Debug.Log("Already logged in");                                                    
 			OnLoggedIn();                                                                        
 		}                                                                                        
-	}                                                                                            
+	}    
+	
+	public void connectFacebook() {
+		Debug.Log("connectFacebook...");
+		FB.Login("email,publish_actions, user_friends", LoginCallback);                                                        
+	}
 	
 	private void OnHideUnity(bool isGameShown)                                                   
 	{                                                                                            
@@ -50,7 +63,7 @@ public class MainMenu : MonoBehaviour {
 			Time.timeScale = 1;                                                                  
 		}                                                                                        
 	}
-
+	
 	void LoginCallback(FBResult result)                                                        
 	{                                                                                          
 		Debug.Log("LoginCallback");                                                          
