@@ -98,8 +98,6 @@ public class PlayerMovement : MonoBehaviour
 	private float RotationScaleMultiplier = 1.0f;
 	private bool  SkipMouseRotation = false;
 	private bool  HaltUpdateMovement = false;
-	private bool prevHatLeft = false;
-	private bool prevHatRight = false;
 	private float SimulationRate = 60f;
 	
 	
@@ -309,9 +307,7 @@ public class PlayerMovement : MonoBehaviour
 		
 		if(Input.GetKey(KeyCode.Space)) 
 			Jump ();
-		
-		float rotateInfluence = SimulationRate * Time.deltaTime * RotationAmount * RotationScaleMultiplier;
-//		
+		//		
 //		if (!SkipMouseRotation)
 //			euler.y += Input.GetAxis("Mouse X") * rotateInfluence * 3.25f;
 		

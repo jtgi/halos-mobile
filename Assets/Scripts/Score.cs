@@ -121,6 +121,6 @@ public class Score : MonoBehaviour {
 
 	public void NavigateToHighScores() {
 		Debug.Log ("High Scores selected");
-		//Application.LoadLevel("HighScores");
+		Application.LoadLevel("MainMenu");
 	}
 }
