@@ -6,6 +6,8 @@ Library/
 
 # My files
 Builds/
+Plugins/
+Dependencies/
 
 # ===================================== #
 # Visual Studio / MonoDevelop generated #
