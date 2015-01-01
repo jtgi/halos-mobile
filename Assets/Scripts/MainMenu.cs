@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Facebook.MiniJSON;
+using System.Collections;
+using System.Collections.Generic;
 
 public class MainMenu : MonoBehaviour {
 
@@ -77,6 +79,80 @@ public class MainMenu : MonoBehaviour {
 	void OnLoggedIn()                                                                          
 	{                                                                                          
 		Debug.Log("Logged in. ID: " + FB.UserId);                                            
-	} 
+		FB.API("/me?fields=id,first_name,friends.limit(100).fields(first_name,id)", Facebook.HttpMethod.GET, APICallback);  
+	}
 
+	void APICallback(FBResult result)                                                                                              
+	{                                                                                                                              
+		Debug.Log("APICallback");                                                                                                
+		if (result.Error != null)                                                                                                  
+		{                                                                                                                          
+			Debug.LogError(result.Error);                                                                                           
+			// Let's just try again                                                                                                
+			FB.API("/me?fields=id,first_name,friends.limit(100).fields(first_name,id)", Facebook.HttpMethod.GET, APICallback);     
+			return;                                                                                                                
+		}                                                                                                                          
+		
+		var profile = DeserializeJSONProfile(result.Text);                                                                             
+		var friends = DeserializeJSONFriends(result.Text);
+
+		Debug.Log ("Profile " + profile);
+		Debug.Log("Friends " + friends);
+	}     
+
+	public static Dictionary<string, string> DeserializeJSONProfile(string response)
+	{
+		var responseObject = Json.Deserialize(response) as Dictionary<string, object>;
+		object nameH;
+		var profile = new Dictionary<string, string>();
+		if (responseObject.TryGetValue("first_name", out nameH))
+		{
+			profile["first_name"] = (string)nameH;
+		}
+		return profile;
+	}
+
+	public static List<object> DeserializeScores(string response) 
+	{
+		
+		var responseObject = Json.Deserialize(response) as Dictionary<string, object>;
+		object scoresh;
+		var scores = new List<object>();
+		if (responseObject.TryGetValue ("data", out scoresh)) 
+		{
+			scores = (List<object>) scoresh;
+		}
+		
+		return scores;
+	}
+	
+	public static List<object> DeserializeJSONFriends(string response)
+	{
+		var responseObject = Json.Deserialize(response) as Dictionary<string, object>;
+		object friendsH;
+		var friends = new List<object>();
+		if (responseObject.TryGetValue("invitable_friends", out friendsH))
+		{
+			friends = (List<object>)(((Dictionary<string, object>)friendsH)["data"]);
+		}
+		if (responseObject.TryGetValue("friends", out friendsH))
+		{
+			friends.AddRange((List<object>)(((Dictionary<string, object>)friendsH)["data"]));
+		}
+		return friends;
+	}
+
+	public static string GetPictureURL(string facebookID, int? width = null, int? height = null, string type = null)
+	{
+		string url = string.Format("/{0}/picture", facebookID);
+		string query = width != null ? "&width=" + width.ToString() : "";
+		query += height != null ? "&height=" + height.ToString() : "";
+		query += type != null ? "&type=" + type : "";
+		query += "&redirect=false";
+		if (query != "") url += ("?g" + query);
+		return url;
+	}
+	
+	
+	
 }
