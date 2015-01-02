@@ -792,7 +792,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1808715695}
+      - m_Target: {fileID: 1714087851}
         m_MethodName: connectFacebook
         m_Mode: 1
         m_Arguments:
