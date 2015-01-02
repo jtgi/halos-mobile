@@ -8,6 +8,7 @@ Library/
 Builds/
 Plugins/
 Dependencies/
+Assets/GameAnalytics
 
 # ===================================== #
 # Visual Studio / MonoDevelop generated #

@@ -31,6 +31,7 @@ public class Score : MonoBehaviour {
 	private PlayerMovement playerController;
 	private int lives;
 	private float gravitySetting;
+	private HighScores leaderboard;
 
 
 	void Start () {
@@ -59,6 +60,8 @@ public class Score : MonoBehaviour {
 		inGameGui = GameObject.Find ("InGameGUI");
 
 		gameOverGui.SetActive(false);
+		leaderboard = gameOverGui.GetComponent<HighScores>();
+
 		inGameGui.SetActive(true);
 
 		gameOver = false;
@@ -89,24 +92,36 @@ public class Score : MonoBehaviour {
 	}
 
 	public void GameOver() {
+	
 		float highScore = PlayerPrefs.GetFloat("highScore");
+	
 		bool newHighScore = highScore < points;
 
 		if(newHighScore) {
 			PlayerPrefs.SetFloat("highScore", points);
 			PlayerPrefs.Save();
 			gameOverText = newHighScoreText;
+
+
 		} else {
 			gameOverText = gameOverTextDefault;
 		}
 
+		if(FB.IsLoggedIn) {
+			leaderboard.SubmitHighScore();
+		}
+		
 		statsDisplay.text = string.Format ("HIGH SCORE {0}", PlayerPrefs.GetFloat("highScore"));
 		gameOverDisplay.text = gameOverText;
 
-		//TODO disable player movements here
+
 		playerController.SetHaltUpdateMovement(true);
 		gameOverGui.SetActive(true);
 		gameOver = true;
+
+		if(FB.IsLoggedIn) {
+			leaderboard.FetchScores();
+		}
 	}
 	
 	public void Respawn() {

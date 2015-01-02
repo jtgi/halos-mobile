@@ -1299,6 +1299,7 @@ GameObject:
   - 223: {fileID: 1730992481}
   - 114: {fileID: 1730992480}
   - 114: {fileID: 1730992479}
+  - 114: {fileID: 1730992482}
   m_Layer: 5
   m_Name: GameOverGUI
   m_TagString: Untagged
@@ -1382,6 +1383,18 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingLayerID: 0
   m_SortingOrder: 2
+--- !u!114 &1730992482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1730992477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 507a7541e21df0042833d359ad8bf965, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  connectFbButton: {fileID: 0}
 --- !u!1 &1778148366
 GameObject:
   m_ObjectHideFlags: 0

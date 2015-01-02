@@ -7,11 +7,19 @@ using Facebook.MiniJSON;
 public class HighScores : MonoBehaviour {
 
 	public Button connectFbButton;
+	public GameObject scoreRowPrefab;
+	public GameObject scoreList;
+	public GameObject connectFbBtn;
+	public GameObject leaderboard;
 
-	private bool isFbConnected = false;
-	
 	void Awake() {
-		FB.Init(SetInit, OnHideUnity);  
+		if(!FB.IsLoggedIn) {
+			FB.Init(SetInit, OnHideUnity);  
+		}
+	}
+
+	void Create() {
+		leaderboard.SetActive(false);
 	}
 
 	
@@ -50,18 +58,43 @@ public class HighScores : MonoBehaviour {
 		Debug.Log("LoginCallback");                                                          
 		
 		if (FB.IsLoggedIn)                                                                     
-		{                                                                                      
+		{         
+			connectFbBtn.SetActive(false);
+			leaderboard.SetActive(true);
 			OnLoggedIn();                                                                      
 		}                                                                                      
 	}                                                                                          
 	
 	void OnLoggedIn()                                                                          
 	{                                                                                          
-		Debug.Log("Logged in. ID: " + FB.UserId);                                            
-		fetchScores();
+		Debug.Log("Logged in. ID: " + FB.UserId); 
+		PlayerPrefs.SetString("fb_id", FB.UserId);
+		FetchScores();
 	}
 
-	void fetchScores() {
+	public void SubmitHighScore() {
+		string userId = PlayerPrefs.GetString("fb_id");
+		int points = (int)PlayerPrefs.GetFloat("highScore");
+
+		Debug.Log("fb token " + FB.AccessToken);
+
+		if(userId.Equals(string.Empty)) {
+			Debug.Log("Error retreiving user_id from playerprefs");
+			return;
+		}
+
+		FB.API(string.Format ("/{0}/scores?score={1}", userId, points), Facebook.HttpMethod.POST, result => {
+			if(result.Error != null) {
+				Debug.Log("error setting new high score");
+				Debug.Log(result.Error);
+				return;
+			} else {
+				Debug.Log("Updated score.");
+			}
+		});
+	}
+
+	public void FetchScores() {
 		Debug.Log ("Fetching scores...");
 		FB.API (string.Format ("/{0}/scores", FB.AppId), Facebook.HttpMethod.GET, FetchScoreCallback);
 	}
@@ -75,16 +108,34 @@ public class HighScores : MonoBehaviour {
 
 		Debug.Log(result.Text);
 		var scores = DeserializeScores(result.Text);
-		//deserialize payload here                                                                       
+		RenderScores(scores);
 	}
 
-	//{"data":[{"user":{"id":"10152511422056765","name":"John Giannakos"},"score":0,"application":{"name":"Halos","id":"1520323738236537"}}]}
+	void RenderScores(List<UserScore> userScores) {
+		Debug.Log ("RenderScores");
+		int i = 1;
+		foreach(var userScore in userScores) {
+			
+			GameObject row = Instantiate(scoreRowPrefab, Vector3.zero, Quaternion.identity) as GameObject;
+
+			row.transform.FindChild("Rank").GetComponent<Text>().text = i.ToString() + ".";
+			row.transform.FindChild("ProfilePicture").GetComponent<Image>().sprite = userScore.ProfilePicture;
+			row.transform.FindChild("Name").GetComponent<Text>().text = userScore.Name;
+			row.transform.FindChild("Score").GetComponent<Text>().text = userScore.Score.ToString ();
+			row.transform.SetParent(scoreList.transform, false);
+
+			
+			i++;
+		}
+		//hide 'connect to facebook button'
+		//show scroll controls
+	}
 
 	class UserScore {
 		public string Id { get; set; }
 		public string Name { get; set; }
 		public int Score { get; set; }
-		public Texture ProfilePicture { get; set; }
+		public Sprite ProfilePicture { get; set; }
 
 		public UserScore() {
 			//nothing
@@ -120,8 +171,8 @@ public class HighScores : MonoBehaviour {
 					user.Name = fbUserObj["name"] as string;
 					user.Score = System.Convert.ToInt32(userObj["score"]);
 					if(user.Score > 0) {
-						LoadPictureAPI(string.Format ("/{0}/picture?redirect=0&type=normal&width=100&height=100", user.Id), texture => {
-							user.ProfilePicture = texture;
+						LoadPictureAPI(string.Format ("/{0}/picture?redirect=0&type=square&width=225&height=225", user.Id), sprite => {
+							user.ProfilePicture = sprite;
 						});
 						userScores.Add(user);
 					}
@@ -135,14 +186,19 @@ public class HighScores : MonoBehaviour {
 	}
 
 	/* Load Profile Functions */
-	delegate void LoadPictureCallback (Texture texture);
+	delegate void LoadPictureCallback (Sprite sprite);
 
 	IEnumerator LoadPictureEnumerator(string url, LoadPictureCallback callback)    
 	{
-		WWW www = new WWW(url);
-		yield return www;
-		callback(www.texture);
+//		WWW www = new WWW(url);
+		yield return null;
+//
+//		Sprite sprite = new Sprite();
+//		sprite = Sprite.Create(www.texture, new Rect(0, 0, 225, 225), new Vector2(0, 0), 0.1f);
+
+		callback(null);
 	}
+
 	void LoadPictureAPI (string url, LoadPictureCallback callback)
 	{
 		FB.API(url,Facebook.HttpMethod.GET,result =>
