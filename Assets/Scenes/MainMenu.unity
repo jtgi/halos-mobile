@@ -307,7 +307,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &376127547
 RectTransform:
   m_ObjectHideFlags: 0
@@ -315,7 +315,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 376127546}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 1.4323e-05}
+  m_LocalPosition: {x: 0, y: 0, z: 1.93680007e-05}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 667224880}
@@ -324,8 +324,8 @@ RectTransform:
   m_RootOrder: 4
   m_AnchorMin: {x: .5, y: .5}
   m_AnchorMax: {x: .5, y: .5}
-  m_AnchoredPosition: {x: 160.948792, y: -73.9362869}
-  m_SizeDelta: {x: 635.153625, y: 321.413422}
+  m_AnchoredPosition: {x: 160.940002, y: -74}
+  m_SizeDelta: {x: 635.130005, y: 321}
   m_Pivot: {x: .5, y: .5}
 --- !u!114 &376127548
 MonoBehaviour:
@@ -597,7 +597,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 2064916618}
   m_Direction: 0
   m_Value: 1
-  m_Size: .740583897
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -974,6 +974,7 @@ GameObject:
   - 222: {fileID: 1191966143}
   - 114: {fileID: 1191966142}
   - 114: {fileID: 1191966146}
+  - 114: {fileID: 1191966144}
   m_Layer: 5
   m_Name: ScoreList
   m_TagString: Untagged
@@ -988,16 +989,16 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1191966140}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -.000543217931}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 376127547}
   m_RootOrder: 1
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 290, y: -217}
-  m_SizeDelta: {x: 579, y: 434}
-  m_Pivot: {x: .5, y: .5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 635.130005, y: 0}
+  m_Pivot: {x: 0, y: 1}
 --- !u!114 &1191966142
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1025,6 +1026,19 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1191966140}
+--- !u!114 &1191966144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1191966140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1741964061, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!114 &1191966146
 MonoBehaviour:
   m_ObjectHideFlags: 0

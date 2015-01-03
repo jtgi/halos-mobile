@@ -18,10 +18,22 @@ public class HighScores : MonoBehaviour {
 		}
 	}
 
-	void Create() {
-		leaderboard.SetActive(false);
+	public void Init() {
+		ToggleHighScoreView();
+		FetchScores();
 	}
 
+	void ToggleHighScoreView() {
+		Debug.Log ("ToggleHighScoreView");
+		if(!FB.IsLoggedIn) {
+			leaderboard.SetActive(false);
+			connectFbBtn.SetActive(true);
+		} else {
+			connectFbBtn.SetActive(false);
+			leaderboard.SetActive(true);
+		}
+	}
+	
 	
 	private void SetInit()                                                                       
 	{                                                                                            
@@ -58,9 +70,7 @@ public class HighScores : MonoBehaviour {
 		Debug.Log("LoginCallback");                                                          
 		
 		if (FB.IsLoggedIn)                                                                     
-		{         
-			connectFbBtn.SetActive(false);
-			leaderboard.SetActive(true);
+		{
 			OnLoggedIn();                                                                      
 		}                                                                                      
 	}                                                                                          
@@ -69,7 +79,7 @@ public class HighScores : MonoBehaviour {
 	{                                                                                          
 		Debug.Log("Logged in. ID: " + FB.UserId); 
 		PlayerPrefs.SetString("fb_id", FB.UserId);
-		FetchScores();
+		Init();
 	}
 
 	public void SubmitHighScore() {
@@ -95,8 +105,10 @@ public class HighScores : MonoBehaviour {
 	}
 
 	public void FetchScores() {
-		Debug.Log ("Fetching scores...");
-		FB.API (string.Format ("/{0}/scores", FB.AppId), Facebook.HttpMethod.GET, FetchScoreCallback);
+		if(FB.IsLoggedIn) {
+			Debug.Log ("Fetching scores...");
+			FB.API (string.Format ("/{0}/scores", FB.AppId), Facebook.HttpMethod.GET, FetchScoreCallback);
+		}
 	}
 
 	void FetchScoreCallback(FBResult result)                                                                                              
@@ -114,6 +126,11 @@ public class HighScores : MonoBehaviour {
 	void RenderScores(List<UserScore> userScores) {
 		Debug.Log ("RenderScores");
 		int i = 1;
+
+		foreach(Transform child in scoreList.transform) {
+			Destroy(child);
+		}
+
 		foreach(var userScore in userScores) {
 			
 			GameObject row = Instantiate(scoreRowPrefab, Vector3.zero, Quaternion.identity) as GameObject;
@@ -131,26 +148,6 @@ public class HighScores : MonoBehaviour {
 		//show scroll controls
 	}
 
-	class UserScore {
-		public string Id { get; set; }
-		public string Name { get; set; }
-		public int Score { get; set; }
-		public Sprite ProfilePicture { get; set; }
-
-		public UserScore() {
-			//nothing
-		}
-
-		public UserScore(string id, string name, int score) {
-			Id = id;
-			Name = name;
-			Score = score;
-		}
-
-		public string toString() {
-			return string.Format ("id: {0}, name: {1}, score: {2}", Id, Name, Score);
-		}
-	}
 
 	List<UserScore> DeserializeScores(string scoreJson) {
 		var dict = Json.Deserialize(scoreJson) as Dictionary<string, object>;

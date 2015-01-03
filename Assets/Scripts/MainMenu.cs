@@ -8,11 +8,14 @@ public class MainMenu : MonoBehaviour {
 	GameObject cam;
 	GameObject highScoresMenu;
 	GameObject titleMenu;
+	HighScores highScoresScript;
 
 	void Start() {
 		cam = GameObject.FindWithTag("MainCamera");
 		highScoresMenu = GameObject.Find ("HighScores");
+		highScoresScript = highScoresMenu.GetComponent<HighScores>();
 		titleMenu = GameObject.Find ("MainMenu");
+
 	}
 
 	public void NavigateToTitleMenu() {
@@ -21,6 +24,7 @@ public class MainMenu : MonoBehaviour {
 
 	public void NavigateToHighScores() {
 		cam.transform.LookAt(highScoresMenu.transform);
+		highScoresScript.Init();
 	}
 
 	public void PlayOnClick() {
