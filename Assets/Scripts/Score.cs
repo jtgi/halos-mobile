@@ -52,9 +52,6 @@ public class Score : MonoBehaviour {
 		inGameGui = GameObject.Find ("InGameGUI");
 		leaderboard = gameOverGui.GetComponent<HighScores>();
 
-		if(firstTimeUse()) {
-			startUI.SetActive(true);
-		}
 		initGame();
 	}
 
@@ -66,10 +63,17 @@ public class Score : MonoBehaviour {
 		pointDisplay.text = pointDisplayPrefixText + " " + points;
 
 		gameOverGui.SetActive(false);
+		inGameGui.SetActive(false);
 		playerController.SetHaltUpdateMovement(true);
 
 		gameOver = false;
 		donutGen.initDonuts();
+
+		if(FirstTimeUse() == false) {
+			StartGame();
+		} else {
+			startUI.SetActive(true);
+		}
 	}
 
 	public void StartGame() {
@@ -91,7 +95,7 @@ public class Score : MonoBehaviour {
 
 	}
 
-	private bool firstTimeUse() {
+	private bool FirstTimeUse() {
 		if(PlayerPrefs.HasKey("firstTimeUse")) {
 			return false;
 		} else {
