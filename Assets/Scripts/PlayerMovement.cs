@@ -59,11 +59,6 @@ public class PlayerMovement : MonoBehaviour
 	public float RotationRatchet = 45.0f;
 	
 	/// <summary>
-	/// The player's current rotation about the Y axis.
-	/// </summary>
-	private float YRotation = 0.0f;
-	
-	/// <summary>
 	/// If true, tracking data from a child OVRCameraRig will update the direction of movement.
 	/// </summary>
 	public bool HmdRotatesY = true;
@@ -92,13 +87,12 @@ public class PlayerMovement : MonoBehaviour
 	public AudioSource standbyWindSound;
 	
 	protected CharacterController Controller = null;
-	//protected OVRCameraRig CameraController = null;
-	
+
 	private float MoveScaleMultiplier = 1.0f;
 	private float RotationScaleMultiplier = 1.0f;
-	private bool  SkipMouseRotation = false;
 	private bool  HaltUpdateMovement = false;
 	private float SimulationRate = 60f;
+	private Vector3 baseAxis = Vector3.zero;
 	
 	
 	void Awake()
@@ -108,48 +102,12 @@ public class PlayerMovement : MonoBehaviour
 		
 		if(Controller == null)
 			Debug.LogWarning("OVRPlayerController: No CharacterController attached.");
-		
-		// We use OVRCameraRig to set rotations to cameras,
-		// and to be influenced by rotation
-		//OVRCameraRig[] CameraControllers;
-		//CameraControllers = gameObject.GetComponentsInChildren<OVRCameraRig>();
-		
-//		if(CameraControllers.Length == 0)
-//			Debug.LogWarning("OVRPlayerController: No OVRCameraRig attached.");
-//		else if (CameraControllers.Length > 1)
-//			Debug.LogWarning("OVRPlayerController: More then 1 OVRCameraRig attached.");
-//		else
-//			CameraController = CameraControllers[0];
-		
-		YRotation = transform.rotation.eulerAngles.y;
 
+	
 	}
 	
 	protected virtual void FixedUpdate()
 	{
-//		
-//		if (useProfileHeight)
-//		{
-//			if (InitialPose == null)
-//			{
-//				InitialPose = new OVRPose() {
-//					position = CameraController.transform.localPosition,
-//					orientation = CameraController.transform.localRotation
-//				};
-//			}
-//			
-//			var p = CameraController.transform.localPosition;
-//			p.y = OVRManager.profile.eyeHeight - 0.5f * Controller.height;
-//			p.z = OVRManager.profile.eyeDepth;
-//			CameraController.transform.localPosition = p;
-//		}
-//		else if (InitialPose != null)
-//		{
-//			CameraController.transform.localPosition = InitialPose.Value.position;
-//			CameraController.transform.localRotation = InitialPose.Value.orientation;
-//			InitialPose = null;
-//		}
-		
 		UpdateMovement();
 		
 		Vector3 moveDirection = Vector3.zero;
@@ -239,21 +197,7 @@ public class PlayerMovement : MonoBehaviour
 		bool moveLeft = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow);
 		bool moveRight = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow);
 		bool moveBack = Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow);
-		
-		bool dpad_move = false;
-		
-//		if (OVRGamepadController.GPC_GetButton(OVRGamepadController.Button.Up))
-//		{
-//			moveForward = true;
-//			dpad_move   = true;
-//			
-//		}
-//		if (OVRGamepadController.GPC_GetButton(OVRGamepadController.Button.Down))
-//		{
-//			moveBack  = true;
-//			dpad_move = true;
-//		}
-		
+	
 		MoveScale = 1.0f;
 		
 		if ( (moveForward && moveLeft) || (moveForward && moveRight) ||
@@ -266,19 +210,10 @@ public class PlayerMovement : MonoBehaviour
 		// Compute this for key movement
 		float moveInfluence = Acceleration * 0.1f * MoveScale * MoveScaleMultiplier;
 		
-		// Run!
-		if (dpad_move || Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-			moveInfluence *= 2.0f;
-		
 		Quaternion ort = transform.rotation;
 		Vector3 ortEuler = ort.eulerAngles;
 		ortEuler.z = ortEuler.x = 0f;
 		ort = Quaternion.Euler(ortEuler);
-		
-		if(Input.GetKey(KeyCode.R)) {
-			ResetOrientation();
-		}
-		
 		
 		if (moveForward)
 			MoveThrottle += ort * (transform.lossyScale.z * moveInfluence * BackAndSideDampen * Vector3.forward);
@@ -289,36 +224,13 @@ public class PlayerMovement : MonoBehaviour
 		if (moveRight)
 			MoveThrottle += ort * (transform.lossyScale.x * moveInfluence * BackAndSideDampen * Vector3.right);
 		
-//		bool curHatLeft = OVRGamepadController.GPC_GetButton(OVRGamepadController.Button.LeftShoulder);
-//		
-//		Vector3 euler = transform.rotation.eulerAngles;
-//		
-//		if (curHatLeft && !prevHatLeft)
-//			euler.y -= RotationRatchet;
-//		
-//		prevHatLeft = curHatLeft;
-//		
-//		bool curHatRight = OVRGamepadController.GPC_GetButton(OVRGamepadController.Button.RightShoulder);
-//		
-//		if(curHatRight && !prevHatRight)
-//			euler.y += RotationRatchet;
-//		
-//		prevHatRight = curHatRight;
-		
 		if(Input.GetKey(KeyCode.Space)) 
 			Jump ();
-		//		
-//		if (!SkipMouseRotation)
-//			euler.y += Input.GetAxis("Mouse X") * rotateInfluence * 3.25f;
-		
+	
 		moveInfluence = SimulationRate * Time.deltaTime * Acceleration * 0.1f * MoveScale * MoveScaleMultiplier;
-		
-//		#if !UNITY_ANDROID // LeftTrigger not avail on Android game pad
-//		moveInfluence *= 1.0f + OVRGamepadController.GPC_GetAxis(OVRGamepadController.Axis.LeftTrigger);
-//		#endif
 
-		float leftAxisX = editorModeEnabled ? Input.GetAxis("Horizontal") : Input.acceleration.x * accelerometerMultiplier;//OVRGamepadController.GPC_GetAxis(OVRGamepadController.Axis.LeftXAxis);
-		float leftAxisY = editorModeEnabled ? Input.GetAxis("Vertical") : Input.acceleration.y  * accelerometerMultiplier;//OVRGamepadController.GPC_GetAxis(OVRGamepadController.Axis.LeftYAxis);
+		float leftAxisX = editorModeEnabled ? Input.GetAxis("Horizontal") : (Input.acceleration.x - baseAxis.x) * accelerometerMultiplier;
+		float leftAxisY = editorModeEnabled ? Input.GetAxis("Vertical") : (Input.acceleration.y - baseAxis.y) * accelerometerMultiplier;
 
 		if(leftAxisY > 0.0f)
 			MoveThrottle += ort * (leftAxisY * moveInfluence * BackAndSideDampen * Vector3.forward);
@@ -331,17 +243,17 @@ public class PlayerMovement : MonoBehaviour
 		
 		if(leftAxisX > 0.0f)
 			MoveThrottle += ort * (leftAxisX * moveInfluence * BackAndSideDampen * Vector3.right);
-		
-//		float rightAxisX = OVRGamepadController.GPC_GetAxis(OVRGamepadController.Axis.RightXAxis);
-//		
-//		euler.y += rightAxisX * rotateInfluence;
-//		
-//		transform.rotation = Quaternion.Euler(euler);
+
 	}
-	
-	/// <summary>
-	/// Jump! Must be enabled manually.
-	/// </summary>
+
+	public void SetBaseAxis(Vector3 axis) {
+		baseAxis = axis;
+	}
+
+	public Vector3 GetBaseAxis() {
+		return baseAxis;
+	}
+
 	public bool Jump()
 	{
 		if (!Controller.isGrounded)
@@ -352,16 +264,7 @@ public class PlayerMovement : MonoBehaviour
 		return true;
 	}
 	
-	/// <summary>
-	/// Stop this instance.
-	/// </summary>
-	public void Stop()
-	{
-		Controller.Move(Vector3.zero);
-		MoveThrottle = Vector3.zero;
-		FallSpeed = 0.0f;
-	}
-	
+
 	/// <summary>
 	/// Gets the move scale multiplier.
 	/// </summary>
@@ -397,24 +300,7 @@ public class PlayerMovement : MonoBehaviour
 	{
 		RotationScaleMultiplier = rotationScaleMultiplier;
 	}
-	
-	/// <summary>
-	/// Gets the allow mouse rotation.
-	/// </summary>
-	/// <param name="skipMouseRotation">Allow mouse rotation.</param>
-	public void GetSkipMouseRotation(ref bool skipMouseRotation)
-	{
-		skipMouseRotation = SkipMouseRotation;
-	}
-	
-	/// <summary>
-	/// Sets the allow mouse rotation.
-	/// </summary>
-	/// <param name="skipMouseRotation">If set to <c>true</c> allow mouse rotation.</param>
-	public void SetSkipMouseRotation(bool skipMouseRotation)
-	{
-		SkipMouseRotation = skipMouseRotation;
-	}
+
 	
 	/// <summary>
 	/// Gets the halt update movement.
@@ -433,15 +319,6 @@ public class PlayerMovement : MonoBehaviour
 	{
 		HaltUpdateMovement = haltUpdateMovement;
 	}
-	
-	/// <summary>
-	/// Resets the player look rotation when the device orientation is reset.
-	/// </summary>
-	public void ResetOrientation()
-	{
-		Vector3 euler = transform.rotation.eulerAngles;
-		euler.y = YRotation;
-		transform.rotation = Quaternion.Euler(euler);
-	}
+
 }
 

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using Holoville.HOTween;
 
 public class Score : MonoBehaviour {
 
@@ -26,6 +27,9 @@ public class Score : MonoBehaviour {
 	private GameObject gameOverGui;
 	private GameObject inGameGui;
 	private GameObject respawnPosition;
+	private GameObject startUI;
+	private GameObject takeOffHook;
+	private GameObject playerCamera;
 
 	private DonutGen donutGen;
 	private PlayerMovement playerController;
@@ -38,15 +42,20 @@ public class Score : MonoBehaviour {
 		points = 0;
 		donutsSurvived = 0;
 
+		playerCamera = GameObject.Find ("Camera");
 		playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerMovement>();
 		respawnPosition = GameObject.Find("Respawn");
 		donutGen = GameObject.FindGameObjectWithTag("MainScript").GetComponent<DonutGen>();
+		startUI = GameObject.Find("StartUI");
+		takeOffHook =  GameObject.Find ("TakeOffHook");
+		gameOverGui = GameObject.Find ("GameOverGUI");
+		inGameGui = GameObject.Find ("InGameGUI");
+		leaderboard = gameOverGui.GetComponent<HighScores>();
 
+		if(firstTimeUse()) {
+			startUI.SetActive(true);
+		}
 		initGame();
-	}
-
-	void Update() {
-
 	}
 
 	void initGame() {
@@ -56,18 +65,39 @@ public class Score : MonoBehaviour {
 		lifeDisplay.text = lifeDisplayPrefixText + " "  + lives;
 		pointDisplay.text = pointDisplayPrefixText + " " + points;
 
-		gameOverGui = GameObject.Find ("GameOverGUI");
-		inGameGui = GameObject.Find ("InGameGUI");
-
 		gameOverGui.SetActive(false);
-		leaderboard = gameOverGui.GetComponent<HighScores>();
-
-		inGameGui.SetActive(true);
+		playerController.SetHaltUpdateMovement(true);
 
 		gameOver = false;
-
-		playerController.SetHaltUpdateMovement(false);
 		donutGen.initDonuts();
+	}
+
+	public void StartGame() {
+
+		inGameGui.SetActive(true);
+		startUI.SetActive(false);
+
+		HOTween.To(playerController.transform, 1.5f, new TweenParms()
+		           .Prop("position", takeOffHook.transform.position, false)
+		           .Ease(EaseType.EaseInQuad)
+		           );
+
+		HOTween.To(playerCamera.transform, 2, new TweenParms()
+		           .Prop("rotation", new Vector3(90, 0, 0), true)
+		           .Ease(EaseType.EaseInOutQuad)
+		           .Delay(0.5f)
+		           .OnComplete(() => playerController.SetHaltUpdateMovement(false))
+		           );
+
+	}
+
+	private bool firstTimeUse() {
+		if(PlayerPrefs.HasKey("firstTimeUse")) {
+			return false;
+		} else {
+			PlayerPrefs.SetInt ("firstTimeUse", 1);
+			return true;
+		}
 	}
 
 	public void IncreasePoints(float p) {
@@ -127,11 +157,13 @@ public class Score : MonoBehaviour {
 		}
 
 		playerController.transform.position = respawnPosition.transform.position;
+		playerController.transform.rotation = respawnPosition.transform.rotation;
+		playerCamera.transform.localEulerAngles = new Vector3(0, 0, 0);
 		initGame();
+		StartGame();
 	}
 
 	public void NavigateToHighScores() {
-		Debug.Log ("High Scores selected");
 		Application.LoadLevel("MainMenu");
 	}
 }
