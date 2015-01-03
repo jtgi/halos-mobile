@@ -8,9 +8,8 @@ public class HighScores : MonoBehaviour {
 
 	public Button connectFbButton;
 	public GameObject scoreRowPrefab;
-	public GameObject scoreList;
 	public GameObject connectFbBtn;
-	public GameObject leaderboard;
+	private GameObject leaderboard;
 
 	void Awake() {
 		if(!FB.IsLoggedIn) {
@@ -26,11 +25,9 @@ public class HighScores : MonoBehaviour {
 	void ToggleHighScoreView() {
 		Debug.Log ("ToggleHighScoreView");
 		if(!FB.IsLoggedIn) {
-			leaderboard.SetActive(false);
 			connectFbBtn.SetActive(true);
 		} else {
 			connectFbBtn.SetActive(false);
-			leaderboard.SetActive(true);
 		}
 	}
 	
@@ -127,9 +124,14 @@ public class HighScores : MonoBehaviour {
 		Debug.Log ("RenderScores");
 		int i = 1;
 
-		foreach(Transform child in scoreList.transform) {
-			Destroy(child);
+		if(leaderboard != null) {
+			Destroy(leaderboard);
 		}
+
+		leaderboard = Instantiate(Resources.Load ("Leaderboard"), new Vector3(184f, -94f, 0f), Quaternion.identity) as GameObject;
+		leaderboard.transform.SetParent(this.transform, false);
+
+		Transform scoreList = leaderboard.transform.FindChild("ScoreList");
 
 		foreach(var userScore in userScores) {
 			
@@ -144,8 +146,6 @@ public class HighScores : MonoBehaviour {
 			
 			i++;
 		}
-		//hide 'connect to facebook button'
-		//show scroll controls
 	}
 
 
