@@ -1287,6 +1287,7 @@ MonoBehaviour:
   connectFbButton: {fileID: 1239654330}
   scoreRowPrefab: {fileID: 177408, guid: abfff50cd09dd3949b141b31d02e39ba, type: 2}
   connectFbBtn: {fileID: 1239654328}
+  personalBest: {fileID: 1634141}
 --- !u!114 &1714087852
 MonoBehaviour:
   m_ObjectHideFlags: 0

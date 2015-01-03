@@ -9,16 +9,24 @@ public class HighScores : MonoBehaviour {
 	public Button connectFbButton;
 	public GameObject scoreRowPrefab;
 	public GameObject connectFbBtn;
+	public Text personalBest;
+
 	private GameObject leaderboard;
+	private string personalBestPrefix = "Your Best: ";
 
 	void Awake() {
 		if(!FB.IsLoggedIn) {
 			FB.Init(SetInit, OnHideUnity);  
 		}
+
+		if(!PlayerPrefs.HasKey("highScore")) {
+			PlayerPrefs.SetFloat("highScore", 0f);
+		}
 	}
 
 	public void Init() {
 		ToggleHighScoreView();
+		SyncScore();
 		FetchScores();
 	}
 
@@ -79,7 +87,9 @@ public class HighScores : MonoBehaviour {
 		Init();
 	}
 
-	public void SubmitHighScore() {
+	public void SyncScore() {
+		if(!FB.IsLoggedIn) return;
+
 		string userId = PlayerPrefs.GetString("fb_id");
 		int points = (int)PlayerPrefs.GetFloat("highScore");
 
@@ -90,21 +100,46 @@ public class HighScores : MonoBehaviour {
 			return;
 		}
 
-		FB.API(string.Format ("/{0}/scores?score={1}", userId, points), Facebook.HttpMethod.POST, result => {
+		Debug.Log ("Verify local score updated on FB");
+
+		FB.API (string.Format ("/{0}/scores", FB.UserId), Facebook.HttpMethod.GET, (FBResult result) => {
 			if(result.Error != null) {
-				Debug.Log("error setting new high score");
-				Debug.Log(result.Error);
+				Debug.Log ("Error " + result.Error);
 				return;
-			} else {
-				Debug.Log("Updated score.");
 			}
+			
+			Debug.Log(result.Text);
+			List<UserScore> scores = DeserializeScores(result.Text);
+			if(scores.Count > 0) {
+				int fbScore = scores[0].Score;
+				if(fbScore > points) {
+					Debug.Log ("Found score discrepency on fb score and local host");
+					points = fbScore;
+					PlayerPrefs.SetFloat("highScore", points);
+				}
+			}
+
+			FB.API(string.Format ("/{0}/scores?score={1}", userId, points), Facebook.HttpMethod.POST, storeResult => {
+				if(storeResult.Error != null) {
+					Debug.Log("error setting new high score");
+					Debug.Log(storeResult.Error);
+					return;
+				} else {
+					Debug.Log("Updated score.");
+				}
+			});
+
 		});
+		     
 	}
 
 	public void FetchScores() {
+		personalBest.text = personalBestPrefix + PlayerPrefs.GetFloat("highScore");
+
 		if(FB.IsLoggedIn) {
-			Debug.Log ("Fetching scores...");
-			FB.API (string.Format ("/{0}/scores", FB.AppId), Facebook.HttpMethod.GET, FetchScoreCallback);
+	
+        Debug.Log ("Fetching scores...");
+        FB.API (string.Format ("/{0}/scores", FB.AppId), Facebook.HttpMethod.GET, FetchScoreCallback);
 		}
 	}
 
@@ -146,6 +181,7 @@ public class HighScores : MonoBehaviour {
 			
 			i++;
 		}
+
 	}
 
 

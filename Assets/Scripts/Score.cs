@@ -108,7 +108,7 @@ public class Score : MonoBehaviour {
 		}
 
 		if(FB.IsLoggedIn) {
-			leaderboard.SubmitHighScore();
+			leaderboard.SyncScore();
 		}
 		
 		statsDisplay.text = string.Format ("HIGH SCORE {0}", PlayerPrefs.GetFloat("highScore"));
