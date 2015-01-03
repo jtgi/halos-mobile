@@ -118,10 +118,6 @@ public class Score : MonoBehaviour {
 		playerController.SetHaltUpdateMovement(true);
 		gameOverGui.SetActive(true);
 		gameOver = true;
-
-		if(FB.IsLoggedIn) {
-			leaderboard.FetchScores();
-		}
 	}
 	
 	public void Respawn() {

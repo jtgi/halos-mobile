@@ -9,6 +9,8 @@ Builds/
 Plugins/
 Dependencies/
 Assets/GameAnalytics
+HOTween/
+HoTween.meta
 
 # ===================================== #
 # Visual Studio / MonoDevelop generated #

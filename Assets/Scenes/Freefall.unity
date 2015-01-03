@@ -644,8 +644,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: .360784322}
+  m_Sprite: {fileID: 0}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1395,6 +1395,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   connectFbButton: {fileID: 0}
+  scoreRowPrefab: {fileID: 0}
+  connectFbBtn: {fileID: 0}
+  personalBest: {fileID: 1718346458}
 --- !u!1 &1778148366
 GameObject:
   m_ObjectHideFlags: 0
