@@ -10,6 +10,7 @@ public class HighScores : MonoBehaviour {
 	public GameObject scoreRowPrefab;
 	public GameObject connectFbBtn;
 	public Text personalBest;
+	public GameObject unlinkFacebook;
 
 	private GameObject leaderboard;
 	private string personalBestPrefix = "Your Best: ";
@@ -34,8 +35,10 @@ public class HighScores : MonoBehaviour {
 		Debug.Log ("ToggleHighScoreView");
 		if(!FB.IsLoggedIn) {
 			connectFbBtn.SetActive(true);
+			unlinkFacebook.SetActive(false);
 		} else {
 			connectFbBtn.SetActive(false);
+			unlinkFacebook.SetActive(true);
 		}
 	}
 	
@@ -84,6 +87,13 @@ public class HighScores : MonoBehaviour {
 	{                                                                                          
 		Debug.Log("Logged in. ID: " + FB.UserId); 
 		PlayerPrefs.SetString("fb_id", FB.UserId);
+		Init();
+	}
+
+	public void Logout() {
+		FB.Logout();
+		DestroyLeaderboard();
+
 		Init();
 	}
 
@@ -155,13 +165,17 @@ public class HighScores : MonoBehaviour {
 		RenderScores(scores);
 	}
 
+	void DestroyLeaderboard() {
+		if(leaderboard != null) {
+			Destroy(leaderboard);
+		}
+	}
+
 	void RenderScores(List<UserScore> userScores) {
 		Debug.Log ("RenderScores");
 		int i = 1;
 
-		if(leaderboard != null) {
-			Destroy(leaderboard);
-		}
+		DestroyLeaderboard();
 
 		leaderboard = Instantiate(Resources.Load ("Leaderboard"), new Vector3(184f, -94f, 0f), Quaternion.identity) as GameObject;
 		leaderboard.transform.SetParent(this.transform, false);
