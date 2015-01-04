@@ -30,6 +30,7 @@ public class Score : MonoBehaviour {
 	private GameObject startUI;
 	private GameObject takeOffHook;
 	private GameObject playerCamera;
+	private GameObject missDetector;
 
 	private DonutGen donutGen;
 	private PlayerMovement playerController;
@@ -50,6 +51,7 @@ public class Score : MonoBehaviour {
 		takeOffHook =  GameObject.Find ("TakeOffHook");
 		gameOverGui = GameObject.Find ("GameOverGUI");
 		inGameGui = GameObject.Find ("InGameGUI");
+		missDetector = GameObject.Find ("MissDetector");
 		leaderboard = gameOverGui.GetComponent<HighScores>();
 
 		initGame();
@@ -64,6 +66,7 @@ public class Score : MonoBehaviour {
 
 		gameOverGui.SetActive(false);
 		inGameGui.SetActive(false);
+		missDetector.collider.enabled = true;
 		playerController.SetHaltUpdateMovement(true);
 
 		gameOver = false;
@@ -144,11 +147,12 @@ public class Score : MonoBehaviour {
 		if(FB.IsLoggedIn) {
 			leaderboard.SyncScore();
 		}
-		
-		statsDisplay.text = string.Format ("HIGH SCORE {0}", PlayerPrefs.GetFloat("highScore"));
+
+
+		statsDisplay.text = string.Format ("SCORE: {0}   HIGH SCORE: {1}", points, PlayerPrefs.GetFloat("highScore"));
 		gameOverDisplay.text = gameOverText;
 
-
+		missDetector.collider.enabled = false;;
 		playerController.SetHaltUpdateMovement(true);
 		gameOverGui.SetActive(true);
 		gameOver = true;

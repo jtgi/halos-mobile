@@ -42,13 +42,17 @@ public class PlayerCollider : MonoBehaviour {
 	void OnControllerColliderHit(ControllerColliderHit hit) {
 		if(hit.gameObject.tag == "Ring") {
 			DonutState donut = hit.gameObject.GetComponentInParent<DonutState>();
-			if(!donut.used) {
-				s.decreaseLife();
-				consecutiveDonuts = 1;
-				donutSuccessSound.pitch = 1;
-				donut.used = true;
-				donut.DisplayMiss();
-			}
+			OnRingCollision(donut);
+		}
+	}
+
+	public void OnRingCollision(DonutState donut) {
+		if(!donut.used) {
+			s.decreaseLife();
+			consecutiveDonuts = 1;
+			donutSuccessSound.pitch = 1;
+			donut.used = true;
+			donut.DisplayMiss();
 		}
 	}
 	
