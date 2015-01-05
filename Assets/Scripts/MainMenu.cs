@@ -9,11 +9,15 @@ public class MainMenu : MonoBehaviour {
 	GameObject cam;
 	GameObject highScoresMenu;
 	HighScores highScoresScript;
+	CanvasGroup fader;
+
+	private AsyncOperation async;
 
 	void Start() {
 		cam = GameObject.FindWithTag("MainCamera");
 		highScoresMenu = GameObject.Find ("HighScores");
 		highScoresScript = highScoresMenu.GetComponent<HighScores>();
+		fader = GameObject.Find ("Fader").GetComponent<CanvasGroup> ();
 	}
 
 	public void NavigateToTitleMenu() {
@@ -32,9 +36,25 @@ public class MainMenu : MonoBehaviour {
 
 	}
 
+	IEnumerator LoadFreeFall() {
+		async = Application.LoadLevelAsync("Freefall");
+		async.allowSceneActivation = false;
+		yield return async.isDone;
+	}
+
 	public void PlayOnClick() {
-		Debug.Log ("Clicked");
-		Application.LoadLevel("Freefall");
+		HOTween.To (cam.transform, 2, new TweenParms()
+		            .Prop("rotation", new Vector3 (283.9822f, 289.4968f, 7.331421f), false)
+		            .Prop ("position", new Vector3(cam.transform.position.x, cam.transform.position.y + 10, cam.transform.position.z), false)
+		            .Ease(EaseType.EaseInCubic)
+		            );
+
+		HOTween.To (fader, 1, new TweenParms ().Prop ("alpha", 1.0f)
+		            .Delay(1f)
+		            .OnComplete (() => async.allowSceneActivation = true));
+		            ;
+
+		StartCoroutine("LoadFreeFall");
 	}                                                                                        
 	
 }

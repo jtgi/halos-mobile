@@ -90,11 +90,28 @@ public class HighScores : MonoBehaviour {
 		Init();
 	}
 
-	public void Logout() {
-		FB.Logout();
-		DestroyLeaderboard();
 
-		Init();
+
+	public void Logout()
+	{
+		if (FB.IsLoggedIn)
+		{                                                                                  
+			FB.Logout (); 
+			StartCoroutine ("CheckForSuccessfulLogout");
+		} 
+	}
+	
+	IEnumerator CheckForSuccessfulLogout()
+	{
+		if (FB.IsLoggedIn) 
+		{
+			yield return new WaitForSeconds (0.1f);
+			StartCoroutine ("CheckForSuccessfulLogout");
+		} else 
+		{
+			DestroyLeaderboard();
+			Init();
+		}
 	}
 
 	public void SyncScore() {
@@ -147,9 +164,8 @@ public class HighScores : MonoBehaviour {
 		personalBest.text = personalBestPrefix + PlayerPrefs.GetFloat("highScore");
 
 		if(FB.IsLoggedIn) {
-	
-        Debug.Log ("Fetching scores...");
-        FB.API (string.Format ("/{0}/scores", FB.AppId), Facebook.HttpMethod.GET, FetchScoreCallback);
+	        Debug.Log ("Fetching scores...");
+	        FB.API (string.Format ("/{0}/scores", FB.AppId), Facebook.HttpMethod.GET, FetchScoreCallback);
 		}
 	}
 
@@ -192,7 +208,6 @@ public class HighScores : MonoBehaviour {
 			row.transform.FindChild("Score").GetComponent<Text>().text = userScore.Score.ToString ();
 			row.transform.SetParent(scoreList.transform, false);
 
-			
 			i++;
 		}
 
@@ -218,9 +233,6 @@ public class HighScores : MonoBehaviour {
 					user.Name = fbUserObj["name"] as string;
 					user.Score = System.Convert.ToInt32(userObj["score"]);
 					if(user.Score > 0) {
-						LoadPictureAPI(string.Format ("/{0}/picture?redirect=0&type=square&width=225&height=225", user.Id), sprite => {
-							user.ProfilePicture = sprite;
-						});
 						userScores.Add(user);
 					}
 				}
@@ -230,59 +242,6 @@ public class HighScores : MonoBehaviour {
 		}
 	
 		return userScores;
-	}
-
-	/* Load Profile Functions */
-	delegate void LoadPictureCallback (Sprite sprite);
-
-	IEnumerator LoadPictureEnumerator(string url, LoadPictureCallback callback)    
-	{
-//		WWW www = new WWW(url);
-		yield return null;
-//
-//		Sprite sprite = new Sprite();
-//		sprite = Sprite.Create(www.texture, new Rect(0, 0, 225, 225), new Vector2(0, 0), 0.1f);
-
-		callback(null);
-	}
-
-	void LoadPictureAPI (string url, LoadPictureCallback callback)
-	{
-		FB.API(url,Facebook.HttpMethod.GET,result =>
-		       {
-			if (result.Error != null)
-			{
-				Debug.Log ("error getting photo");
-				return;
-			}
-			
-			var imageUrl = DeserializePictureURLString(result.Text);
-			
-			StartCoroutine(LoadPictureEnumerator(imageUrl,callback));
-		});
-	}
-
-	void LoadPictureURL (string url, LoadPictureCallback callback)
-	{
-		StartCoroutine(LoadPictureEnumerator(url,callback));
-	}
-
-	public static string DeserializePictureURLString(string response)
-	{
-		return DeserializePictureURLObject(Json.Deserialize(response));
-	}
-	
-	public static string DeserializePictureURLObject(object pictureObj)
-	{
-		var picture = (Dictionary<string, object>)(((Dictionary<string, object>)pictureObj)["data"]);
-		object urlH = null;
-		if (picture.TryGetValue("url", out urlH))
-		{
-			Debug.Log("url value " + urlH);
-			return (string)urlH;
-		}
-		
-		return null;
 	}
 
 
